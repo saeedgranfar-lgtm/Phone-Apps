@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- S25 Ultra screen is 6.9", 1440x3120 logical density ~505 dpi.
+         Using two-pane breakpoint at >=600dp width if app is rotated. -->
+    <dimen name="pane_break">600dp</dimen>
+</resources>
