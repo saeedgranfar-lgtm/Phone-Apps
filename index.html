@@ -133,7 +133,6 @@ p{margin:0}
 .bigcode{font-family:var(--serif);font-size:64px;font-weight:700;letter-spacing:.18em;color:var(--gold);text-align:center;line-height:1}
 .podium{display:flex;flex-direction:column;gap:8px}
 .podium .trow.first{border-color:var(--gold);background:rgba(230,196,112,.1)}
-.title-badge{font-size:12px;color:var(--gold);font-weight:600}
 .review-item{border-top:1px solid var(--line);padding-top:12px}
 .backlink{align-self:flex-start;font-size:14px;color:var(--muted);padding:6px 0}
 .dots{display:flex;gap:6px;flex-wrap:wrap}
@@ -323,13 +322,6 @@ function scoreFor(t, correct, ms, streakBefore, fifty, relaxed) {
   const streak = r5(base * Math.min(0.5, 0.1 * streakBefore));
   return { base, speed, streak, total: base + speed + streak };
 }
-function titleFor(acc) {
-  if (acc >= 0.9) return "Walking Synopsis & Codification";
-  if (acc >= 0.75) return "Lights of Guidance Scholar";
-  if (acc >= 0.55) return "Deepened Believer";
-  if (acc >= 0.35) return "Diligent Student";
-  return "Earnest Seeker";
-}
 
 /* ================= answers (bitmask over original option indices) ================= */
 const cmask = q => (q.c || [0]).reduce((m, i) => m | (1 << i), 0);
@@ -413,7 +405,6 @@ function rulesModal() {
       <li><b>Some questions have more than one correct answer.</b> Every question works the same way: tap your answer(s), then <b>Lock in</b>. You score only if you pick exactly the right set.</li>
       <li><b>50:50 lifeline:</b> once per game per player. It removes two wrong answers (one if two answers are correct) but halves that question's base. It isn't available when three answers are correct.</li>
       <li><b>Escalating</b> runs 40% Challenging, then 30% Fiendish, then 30% Ultra Crazy.</li>
-      <li>At the end, each player earns a title from their accuracy: Earnest Seeker → Diligent Student → Deepened Believer → Lights of Guidance Scholar → <i>Walking Synopsis &amp; Codification</i> (90%+).</li>
     </ul>
     <button class="btn btn-gold btn-block" data-act="closeModal">Got it</button>`);
 }
@@ -473,7 +464,7 @@ function toggleCat(list, k) {
   return l.length === Object.keys(CATS).length ? [] : l;
 }
 function diffHelp(k) {
-  return ({ "1": "Already tricky. 100 points each.", "2": "For people who've read the Notes. 200 points each.", "3": "Specialist territory. 300 points each.", esc: "Starts challenging and ends in Ultra Crazy territory.", mix: "Any tier at any moment." })[String(k)];
+  return ({ "1": "Already tricky. 100 points each.", "2": "Harder still. 200 points each.", "3": "The hardest questions. 300 points each.", esc: "Starts challenging and ends in Ultra Crazy territory.", mix: "Any tier at any moment." })[String(k)];
 }
 function bestKey(s) { return `best_${s.diff}_${s.n}_${s.relaxed ? "r" : "t"}_${(s.cats || []).slice().sort().join(".") || "all"}`; }
 function bestLine() { const b = store.get(bestKey(SETUP), null); return b ? `<p class="small muted">Personal best here: <b class="t1c">${b}</b> points</p>` : ""; }
@@ -623,7 +614,7 @@ function revealSolo(q, mask, sc, p) {
   const partial = !ok && mask > 0 && (mask & cmask(q)) > 0;
   render(`
     <div class="verdict ${ok ? "ok" : "no"}"><div class="big">${ok ? "✓" : "✗"}</div>
-      <div><h2>${ok ? pick(["Spot on!", "Masterful.", "The Synopsis smiles upon you.", "Deeply deepened.", "Correct!"]) : mask === 0 ? "Time's up" : partial ? pick(["Partly right…", "So close: not the full set.", "Half a loaf is not the full answer."]) : pick(["Not quite.", "So close.", "Back to the sources!", "A noble attempt."])}</h2>
+      <div><h2>${ok ? pick(["Correct.", "That's right."]) : mask === 0 ? "Time's up" : partial ? "Partly right, but not the full set." : pick(["Not quite.", "Not this time."])}</h2>
       <div class="small muted">Q ${G.qi + 1} of ${G.n} · ${TIERS[q.t].name} · ${esc(catName(q.cat))}</div></div></div>
     <div class="qtext" style="font-size:20px">${esc(q.q)}</div>
     ${q.p ? `<blockquote class="passage">${esc(q.p).replace("______", `<span class="blank">${esc(q.o[0])}</span>`)}</blockquote>` : ""}
@@ -674,14 +665,13 @@ function finalScreen(players, seq, kind, opts = {}) {
   render(`
     <div style="text-align:center" class="stack">
       <div style="display:flex;justify-content:center">${star(70)}</div>
-      <div class="tag">${solo ? "Game complete" : "Winner"}</div>
+      <div class="tag">${solo ? "Game complete" : "Top score"}</div>
       <h1 style="font-size:36px">${solo ? p0.score + " points" : esc(p0.name)}</h1>
-      <div class="title-badge">${esc(titleFor(p0.correct / n))}</div>
     </div>
     ${pb}
     <div class="podium">${ranked.map((p, i) => `
       <div class="trow ${i === 0 ? "first" : ""}"><span class="rk">${i + 1}</span>
-        <div class="n"><div>${esc(p.name)}${p.me ? " (you)" : ""}</div><div class="tiny muted">${p.correct}/${n} correct · best streak ${p.best} · ${esc(titleFor(p.correct / n))}</div></div>
+        <div class="n"><div>${esc(p.name)}${p.me ? " (you)" : ""}</div><div class="tiny muted">${p.correct}/${n} correct · best streak ${p.best}</div></div>
         <span class="s">${p.score}</span></div>`).join("")}</div>
     <div class="row" style="gap:10px">
       <button class="btn btn-ghost grow" data-act="review">Review answers</button>
